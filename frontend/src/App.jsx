@@ -56,7 +56,8 @@ export default function App() {
       {/* Main Content Body */}
       <main className="max-w-4xl mx-auto p-6">
         <Routes>
-          <Route path="/" element={<Notes />} />
+       
+          <Route path="/" element={<Notes token={token} />} />
           <Route path="/login" element={<Login onLogin={setToken} />} />
           <Route path="/register" element={<Register onLogin={setToken} />} />
         </Routes>
