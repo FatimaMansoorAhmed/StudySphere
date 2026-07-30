@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 
-
-const CATEGORIES = ["Programming", "AI", " ML", "DSA", "OOP","JAVA", "WEBDEV","Python","Others"];
+const CATEGORIES = ["Programming", "AI", " ML", "DSA", "OOP", "JAVA", "WEBDEV", "Python", "Others"];
 
 const CATEGORY_COLORS = {
   Programming: "bg-blue-100 text-blue-700 border-blue-200",
@@ -20,10 +19,10 @@ export default function Notes() {
   const [notes, setNotes] = useState([]);
   const [form, setForm] = useState({ title: "", content: "", category: "Others" });
   const [editingId, setEditingId] = useState(null);
-  const [selectedNote, setSelectedNote] = useState(null); // Modal ke liye full note store karega
+  const [selectedNote, setSelectedNote] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  
+
   const isLoggedIn = Boolean(localStorage.getItem("token"));
 
   async function fetchNotes() {
@@ -35,9 +34,14 @@ export default function Notes() {
     }
   }
 
+  // 🔒 CRITICAL FIX: Direct fetch ki jagah Login status checking
   useEffect(() => {
-    fetchNotes();
-  }, []);
+    if (isLoggedIn) {
+      fetchNotes();
+    } else {
+      setNotes([]); // Logged out mode mein list bilkul empty rahegi
+    }
+  }, [isLoggedIn]);
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -88,7 +92,6 @@ export default function Notes() {
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto pb-10 relative">
-      
       {/* Page Header */}
       <div className="flex justify-between items-center border-b border-gray-200 pb-4">
         <div>
@@ -116,7 +119,7 @@ export default function Notes() {
               </button>
             )}
           </div>
-          
+
           {error && (
             <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded">
               {error}
@@ -184,38 +187,38 @@ export default function Notes() {
         </div>
       ) : (
         <div className="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-xl text-center text-sm">
-          💡 Please <strong>Log in</strong> to add, edit or delete your notes.
+          💡 Please <strong>Log in</strong> to view, add, edit or delete your notes.
         </div>
       )}
 
-      {/* Notes Grid Display */}
-      <div>
-        <h2 className="text-xl font-bold text-gray-800 mb-4">Your Notes</h2>
+      {/* Notes Grid Display (Sirf Tab Dikhega Jab Logged In Honge Aur Notes Exists Karenge) */}
+      {isLoggedIn && (
+        <div>
+          <h2 className="text-xl font-bold text-gray-800 mb-4">Your Notes</h2>
 
-        {notes.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300">
-            <p className="text-gray-400 text-base">No notes found yet.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {notes.map((note) => (
-              <div
-                key={note._id}
-                className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition flex flex-col justify-between h-[280px]"
-              >
-                <div>
-                  {/* Category Pill & Action Buttons */}
-                  <div className="flex justify-between items-center mb-3">
-                    <span
-                      className={`text-xs px-2.5 py-1 rounded-full font-medium border ${
-                        CATEGORY_COLORS[note.category] || CATEGORY_COLORS.Others
-                      }`}
-                    >
-                      {note.category}
-                    </span>
+          {notes.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300">
+              <p className="text-gray-400 text-base">No notes found yet. Create one above!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {notes.map((note) => (
+                <div
+                  key={note._id}
+                  className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition flex flex-col justify-between h-[280px]"
+                >
+                  <div>
+                    {/* Category Pill & Action Buttons */}
+                    <div className="flex justify-between items-center mb-3">
+                      <span
+                        className={`text-xs px-2.5 py-1 rounded-full font-medium border ${
+                          CATEGORY_COLORS[note.category] || CATEGORY_COLORS.Others
+                        }`}
+                      >
+                        {note.category}
+                      </span>
 
-                    {/* Action Icons Capsule */}
-                    {isLoggedIn && (
+                      {/* Action Icons Capsule */}
                       <div className="flex items-center gap-1.5 bg-gray-50 p-1 rounded-lg border border-gray-100">
                         <button
                           onClick={() => handleEdit(note)}
@@ -232,42 +235,42 @@ export default function Notes() {
                           🗑️
                         </button>
                       </div>
-                    )}
+                    </div>
+
+                    <h3 className="font-bold text-gray-900 text-lg mb-2 line-clamp-1">
+                      {note.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 overflow-hidden text-ellipsis mb-2">
+                      {note.content}
+                    </p>
                   </div>
 
-                  <h3 className="font-bold text-gray-900 text-lg mb-2 line-clamp-1">
-                    {note.title}
-                  </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 overflow-hidden text-ellipsis mb-2">
-                    {note.content}
-                  </p>
-                </div>
+                  {/* Footer with Author & View More */}
+                  <div className="pt-3 border-t border-gray-100 flex justify-between items-center text-xs">
+                    <span className="text-gray-400">
+                      Author: <strong className="text-gray-600">{note.owner?.name || "Unknown"}</strong>
+                    </span>
 
-                {/* Footer with Author & View More */}
-                <div className="pt-3 border-t border-gray-100 flex justify-between items-center text-xs">
-                  <span className="text-gray-400">
-                    Author: <strong className="text-gray-600">{note.owner?.name || "Unknown"}</strong>
-                  </span>
-                  
-                  {/* Read More Trigger Button */}
-                  <button
-                    onClick={() => setSelectedNote(note)}
-                    className="text-indigo-600 hover:text-indigo-800 font-semibold transition"
-                  >
-                    Read More →
-                  </button>
+                    {/* Read More Trigger Button */}
+                    <button
+                      onClick={() => setSelectedNote(note)}
+                      className="text-indigo-600 hover:text-indigo-800 font-semibold transition"
+                    >
+                      Read More →
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
+      {/* Modal logic */}
       {selectedNote && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col justify-between">
             <div>
-              {/* Modal Header */}
               <div className="flex justify-between items-start border-b border-gray-100 pb-3">
                 <div>
                   <span
@@ -287,7 +290,6 @@ export default function Notes() {
                 </button>
               </div>
 
-              {/* Full Content Area */}
               <div className="mt-4 overflow-y-auto max-h-[50vh] pr-2">
                 <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
                   {selectedNote.content}
@@ -295,7 +297,6 @@ export default function Notes() {
               </div>
             </div>
 
-            {/* Modal Footer */}
             <div className="pt-3 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
               <span>Author: <strong className="text-gray-600">{selectedNote.owner?.name || "Unknown"}</strong></span>
               <button
