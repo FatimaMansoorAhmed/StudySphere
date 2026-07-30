@@ -22,9 +22,9 @@ A modern, responsive full-stack web application designed for students and profes
 - **Tailwind CSS** (Styling & Layout design)
 - **Axios** (API Requests)
 
-### Backend *(Integration Ready)*
+### Backend 
 - **Node.js** & **Express.js**
-- **MongoDB** & **Mongoose**
+- **MongoDB** 
 - **JSON Web Tokens (JWT)** (Authentication)
 
 ---
