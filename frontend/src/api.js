@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Central axios instance so every request goes to the same backend URL
 const api = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "https://study-sphere-kkvm-ten.vercel.app/",
 });
 
 // Interceptor: automatically attach the saved JWT (if any) to every outgoing request
