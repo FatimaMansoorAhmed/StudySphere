@@ -10,7 +10,7 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); // lets us read req.body as JSON
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -21,17 +21,17 @@ app.get("/", (req, res) => {
   res.json({ status: "StudySphere API running" });
 });
 
-// MongoDB Connection Logic (Vercel / Serverless Safe)
+// Connect to MongoDB once (Vercel reuses this connection across function calls
+// when the serverless instance stays warm)
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connected successfully"))
+  .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err.message));
 
-// Local
-const PORT = process.env.PORT || 5000;
-if (process.env.NODE_ENV !== "production") {
+
+if (process.env.VERCEL !== "1") {
+  const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 
-//  VERCEL S
 module.exports = app;
