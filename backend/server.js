@@ -43,7 +43,7 @@ app.use("/api/notes", noteRoutes);
 
 // Simple health check
 app.get("/", (req, res) => {
-  res.json({ status: "StudySphere API running" });
+  res.json({ status: "StudySphere API issss running" });
 });
 
 // Locally: run a normal server with app.listen()
