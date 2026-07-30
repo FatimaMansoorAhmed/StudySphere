@@ -8,35 +8,30 @@ const noteRoutes = require("./routes/notes");
 
 const app = express();
 
-// 1. CORS Package Middleware with options
+  
 app.use(
   cors({
-    origin: "*", // Sab origins allow honge
+    origin: "*", 
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// 2. Preflight (OPTIONS) Requests ko Explicitly Handle Karein (CRITICAL FOR VERCEL)
-app.options("*", (req, res) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  return res.status(200).end();
-});
+// 
+app.options("*", cors());
 
-app.use(express.json());
+app.use(express.json()); 
 
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/notes", noteRoutes);
 
-// Health check
+// Simple health check
 app.get("/", (req, res) => {
   res.json({ status: "StudySphere API running" });
 });
 
-// MongoDB Connection
+// Connect to MongoDB once
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
